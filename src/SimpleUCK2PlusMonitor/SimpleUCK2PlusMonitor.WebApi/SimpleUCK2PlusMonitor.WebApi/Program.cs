@@ -7,36 +7,62 @@ using SimpleUCK2PlusMonitor.Services.Monitoring;
 using SimpleUCK2PlusMonitor.Services.Options;
 using static SimpleUCK2PlusMonitor.Services.Metrics.CloudKeyMetrics;
 
-var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.Sources.Clear();
-builder.Configuration
-    .AddJsonFile("appsettings.json")
-    .AddEnvironmentVariables();
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
-builder.Logging.ClearProviders();
-var logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .CreateLogger();
-builder.Logging.AddSerilog(logger);
+Log.Information("Starting up the service");
+try
+{
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Configuration.Sources.Clear();
+    builder.Configuration
+        .AddJsonFile("appsettings.json")
+        .AddEnvironmentVariables();
 
-builder.Services.AddOpenTelemetry()
-    .WithMetrics(providerBuilder =>
-    {
-        providerBuilder.AddMeter(MetricName);
-        providerBuilder.AddPrometheusExporter();
-        providerBuilder.AddConsoleExporter();
-    });
+    builder.Logging.ClearProviders();
+    var logger = new LoggerConfiguration()
+        .ReadFrom.Configuration(builder.Configuration)
+        .CreateLogger();
+    
+    builder.Host.UseSerilog(logger);
+    builder.Logging.AddSerilog(logger);
 
-builder.Services.AddCloudKeyClient(builder.Configuration);
-builder.Services.AddSingleton<IMonitoringService, CloudKeyMonitoringService>();
-builder.Services.AddSingleton<CloudKeyMetrics>();
-builder.Services.Configure<WorkerOptions>(builder.Configuration.GetSection(WorkerOptions.ConfigSectionName));
-builder.Services.AddHostedService<Worker>();
+    builder.Services.AddOpenTelemetry()
+        .WithMetrics(providerBuilder =>
+        {
+            providerBuilder.AddMeter(MetricName);
+            providerBuilder.AddPrometheusExporter();
+#if DEBUG
+            providerBuilder.AddConsoleExporter();
+#endif
+        });
 
-var app = builder.Build();
+    builder.Services.AddCloudKeyClient(builder.Configuration);
+    builder.Services.AddSingleton<IMonitoringService, CloudKeyMonitoringService>();
+    builder.Services.AddSingleton<CloudKeyMetrics>();
+    builder.Services.Configure<WorkerOptions>(builder.Configuration.GetSection(WorkerOptions.ConfigSectionName));
+    builder.Services.AddHostedService<Worker>();
 
-app.MapPrometheusScrapingEndpoint();
+    var app = builder.Build();
 
-app.MapGet("/api/data", async (IMonitoringService monitoringService) => await monitoringService.GetData());
+    app.UseSerilogRequestLogging();
 
-app.Run();
+    app.MapPrometheusScrapingEndpoint();
+
+    app.MapGet("/api/data", async (IMonitoringService monitoringService) => await monitoringService.GetData());
+
+    app.Run();
+    Log.Information("Stopped cleanly");
+    return 0;
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "An unhandled exception occurred during startup");
+    return 1;
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+

@@ -22,19 +22,25 @@ public class Worker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Worker service started");
-
-        await _monitoringService.GetData();
+        await RunMonitoring();
+       
         using PeriodicTimer timer = new(_options.PullingInterval);
         try
         {
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                await _monitoringService.GetData();
+                await RunMonitoring();
             }
         }
         catch (OperationCanceledException)
         {
             _logger.LogInformation("Worker service is stopping.");
         }
+    }
+
+    private async Task RunMonitoring()
+    {
+        _logger.LogInformation("Update monitoring data");
+        await _monitoringService.GetData();
     }
 }
