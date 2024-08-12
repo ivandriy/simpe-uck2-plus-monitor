@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -8,13 +9,13 @@ namespace SimpleUCK2PlusMonitor.Services;
 
 public class Worker : BackgroundService
 {
-    private readonly IMonitoringService _monitoringService;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ILogger<Worker> _logger;
     private readonly WorkerOptions _options;
 
-    public Worker(IMonitoringService monitoringService, IOptions<WorkerOptions> options, ILogger<Worker> logger)
+    public Worker(IServiceScopeFactory serviceScopeFactory, IOptions<WorkerOptions> options, ILogger<Worker> logger)
     {
-        _monitoringService = monitoringService;
+        _serviceScopeFactory = serviceScopeFactory;
         _logger = logger;
         _options = options.Value;
     }
@@ -41,6 +42,10 @@ public class Worker : BackgroundService
     private async Task RunMonitoring()
     {
         _logger.LogInformation("Update monitoring data");
-        await _monitoringService.GetData();
+        using var scope = _serviceScopeFactory.CreateScope();
+        var monitoringService =
+            scope.ServiceProvider.GetRequiredService<IMonitoringService>();
+
+        await monitoringService.GetData();
     }
 }
