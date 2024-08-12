@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleUCK2PlusMonitor", "SimpleUCK2PlusMonitor.csproj", "{AE4A8F2D-2A69-431E-8912-FBB0E1205F5A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleUCK2PlusMonitor.Console", "SimpleUCK2PlusMonitor.Console\SimpleUCK2PlusMonitor.Console.csproj", "{AE4A8F2D-2A69-431E-8912-FBB0E1205F5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
