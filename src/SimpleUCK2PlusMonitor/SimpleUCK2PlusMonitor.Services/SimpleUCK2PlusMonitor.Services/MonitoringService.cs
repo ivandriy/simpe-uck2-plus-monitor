@@ -8,11 +8,13 @@ namespace SimpleUCK2PlusMonitor.Services;
 public class MonitoringService : IMonitoringService
 {
     private readonly ICloudKeyClient _client;
+    private readonly CloudKeyMetrics _metrics;
     private readonly ILogger<MonitoringService> _logger;
 
-    public MonitoringService(ICloudKeyClient client,  ILogger<MonitoringService> logger)
+    public MonitoringService(ICloudKeyClient client, CloudKeyMetrics metrics, ILogger<MonitoringService> logger)
     {
         _client = client;
+        _metrics = metrics;
         _logger = logger;
     }
     
@@ -24,7 +26,9 @@ public class MonitoringService : IMonitoringService
         }
 
         await ForceLogin();
-        return await _client.GetSystemInfo();
+        var result = await _client.GetSystemInfo();
+        UpdateMetrics(result);
+        return result;
     }
 
 
@@ -58,5 +62,11 @@ public class MonitoringService : IMonitoringService
     {
         await Login();
         await SelfCheck();
+    }
+
+    private void UpdateMetrics(SystemInfoResponse data)
+    {
+        _metrics.CpuTemperature = data.Cpu.Temperature;
+        _metrics.HddTemperature = data.UStorage.Disks.FirstOrDefault().Temperature;
     }
 }

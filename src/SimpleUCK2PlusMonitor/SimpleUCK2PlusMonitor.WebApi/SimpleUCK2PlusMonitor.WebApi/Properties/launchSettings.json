@@ -1,0 +1,17 @@
+﻿{
+  "profiles": {
+    "Development": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5219",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CloudKey__Url": "",
+        "CloudKey__UserName": "",
+        "CloudKey__Password": "",
+        "CloudKey__Timeout": "00:00:05"
+      }
+    }
+  }
+}
