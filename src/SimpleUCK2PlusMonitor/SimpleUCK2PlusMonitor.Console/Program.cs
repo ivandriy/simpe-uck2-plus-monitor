@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SimpleUCK2PlusMonitor.Client.Extensions;
-using SimpleUCK2PlusMonitor.Services;
+using SimpleUCK2PlusMonitor.Services.Monitoring;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.Sources.Clear();
@@ -16,7 +16,7 @@ builder.Services.AddLogging(config =>
 });
 
 builder.Services.AddCloudKeyClient(builder.Configuration);
-builder.Services.AddSingleton<IMonitoringService, MonitoringService>();
+builder.Services.AddSingleton<IMonitoringService, CloudKeyMonitoringService>();
 
 using var host = builder.Build();
 await GetMonitoringData(host.Services);

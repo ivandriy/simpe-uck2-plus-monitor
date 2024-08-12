@@ -1,6 +1,6 @@
 using System.Diagnostics.Metrics;
 
-namespace SimpleUCK2PlusMonitor.Services;
+namespace SimpleUCK2PlusMonitor.Services.Metrics;
 
 public class CloudKeyMetrics
 {

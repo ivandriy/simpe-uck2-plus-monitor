@@ -2,16 +2,17 @@ using System.Net;
 using Microsoft.Extensions.Logging;
 using SimpleUCK2PlusMonitor.Client;
 using SimpleUCK2PlusMonitor.Client.Response;
+using SimpleUCK2PlusMonitor.Services.Metrics;
 
-namespace SimpleUCK2PlusMonitor.Services;
+namespace SimpleUCK2PlusMonitor.Services.Monitoring;
 
-public class MonitoringService : IMonitoringService
+public class CloudKeyMonitoringService : IMonitoringService
 {
     private readonly ICloudKeyClient _client;
     private readonly CloudKeyMetrics _metrics;
-    private readonly ILogger<MonitoringService> _logger;
+    private readonly ILogger<CloudKeyMonitoringService> _logger;
 
-    public MonitoringService(ICloudKeyClient client, CloudKeyMetrics metrics, ILogger<MonitoringService> logger)
+    public CloudKeyMonitoringService(ICloudKeyClient client, CloudKeyMetrics metrics, ILogger<CloudKeyMonitoringService> logger)
     {
         _client = client;
         _metrics = metrics;
@@ -22,10 +23,12 @@ public class MonitoringService : IMonitoringService
     {
         if (_client.IsLoggedOn)
         {
+            _logger.LogDebug("Get data");
             return await _client.GetSystemInfo();
         }
 
         await ForceLogin();
+        _logger.LogDebug("Get data");
         var result = await _client.GetSystemInfo();
         UpdateMetrics(result);
         return result;
@@ -34,6 +37,7 @@ public class MonitoringService : IMonitoringService
 
     private async Task Login()
     {
+        _logger.LogDebug("Try login");
         try
         {
             await _client.Login();
@@ -47,6 +51,7 @@ public class MonitoringService : IMonitoringService
 
     private async Task SelfCheck()
     {
+        _logger.LogDebug("Try self check");
         try
         {
             await _client.Self();
