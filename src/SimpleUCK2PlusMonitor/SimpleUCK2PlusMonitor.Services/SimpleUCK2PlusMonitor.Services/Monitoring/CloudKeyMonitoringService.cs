@@ -23,15 +23,11 @@ public class CloudKeyMonitoringService : IMonitoringService
     {
         if (_client.IsLoggedOn)
         {
-            _logger.LogDebug("Get data");
-            return await _client.GetSystemInfo();
+            return await GetDataInternal();
         }
 
         await ForceLogin();
-        _logger.LogDebug("Get data");
-        var result = await _client.GetSystemInfo();
-        UpdateMetrics(result);
-        return result;
+        return await GetDataInternal();
     }
 
 
@@ -69,9 +65,23 @@ public class CloudKeyMonitoringService : IMonitoringService
         await SelfCheck();
     }
 
+    private async Task<SystemInfoResponse> GetDataInternal()
+    {
+        _logger.LogDebug("Get data");
+        var result = await _client.GetSystemInfo();
+        UpdateMetrics(result);
+        return result;
+    }
+
     private void UpdateMetrics(SystemInfoResponse data)
     {
-        _metrics.CpuTemperature = data.Cpu.Temperature;
-        _metrics.HddTemperature = data.UStorage.Disks.FirstOrDefault().Temperature;
+        var cpuTemperature = data.Cpu.Temperature;
+        var hddTemperature = data.UStorage.Disks.FirstOrDefault().Temperature;
+        
+        _logger.LogDebug("Current CpuTemperature: {CurrCpu}; Updated CpuTemperature: {UpdCpu}", _metrics.CpuTemperature, cpuTemperature);
+        _logger.LogDebug("Current HddTemperature: {CurrHdd}; Updated HddTemperature: {UpdHdd}", _metrics.CpuTemperature, hddTemperature);
+        
+        _metrics.CpuTemperature = cpuTemperature;
+        _metrics.HddTemperature = hddTemperature;
     }
 }

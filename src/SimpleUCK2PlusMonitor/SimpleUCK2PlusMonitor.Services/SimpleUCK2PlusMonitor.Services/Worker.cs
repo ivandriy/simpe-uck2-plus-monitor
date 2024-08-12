@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -9,45 +8,33 @@ namespace SimpleUCK2PlusMonitor.Services;
 
 public class Worker : BackgroundService
 {
-    
+    private readonly IMonitoringService _monitoringService;
     private readonly ILogger<Worker> _logger;
     private readonly WorkerOptions _options;
 
-    public Worker(IServiceProvider serviceProvider, IOptions<WorkerOptions> options, ILogger<Worker> logger)
+    public Worker(IMonitoringService monitoringService, IOptions<WorkerOptions> options, ILogger<Worker> logger)
     {
-        Services = serviceProvider;
+        _monitoringService = monitoringService;
         _logger = logger;
         _options = options.Value;
     }
-    
-    public IServiceProvider Services { get; }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Worker service started");
-        
-        await UpdateData();
+
+        await _monitoringService.GetData();
         using PeriodicTimer timer = new(_options.PullingInterval);
         try
         {
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                await UpdateData();
+                await _monitoringService.GetData();
             }
         }
         catch (OperationCanceledException)
         {
             _logger.LogInformation("Worker service is stopping.");
         }
-    }
-    
-    private async Task UpdateData()
-    {
-        using var scope = Services.CreateScope();
-        var monitoringService = 
-            scope.ServiceProvider
-                .GetRequiredService<IMonitoringService>();
-
-        await monitoringService.GetData();
     }
 }
