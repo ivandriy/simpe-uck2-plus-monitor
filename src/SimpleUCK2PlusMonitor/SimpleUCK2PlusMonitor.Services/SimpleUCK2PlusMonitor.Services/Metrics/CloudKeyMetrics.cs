@@ -40,7 +40,6 @@ public class CloudKeyMetrics
         meter.CreateObservableGauge("cloudkey.disk.size", () => DiskSize);
         meter.CreateObservableGauge("cloudkey.disk.available", () => DiskAvailable);
         meter.CreateObservableGauge("cloudkey.disk.used", () => DiskUsed);
-        meter.CreateObservableGauge("cloudkey.disk.health", () => DiskUsed);
         
         //Memory
         meter.CreateObservableGauge("cloudkey.memory.total", () => TotalMemory);

@@ -33,9 +33,15 @@ public class Worker : BackgroundService
                 await RunMonitoring();
             }
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException ex)
         {
-            _logger.LogInformation("Worker service is stopping.");
+            _logger.LogCritical("Worker service is stopping due to OperationCanceledException: {ExMessage}",
+                ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical("Worker service is stopping due to unexpected exception: {ExMessage}",
+                ex.Message);
         }
     }
 

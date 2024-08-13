@@ -7,4 +7,6 @@ public class CloudKeyClientOptions
     public string UserName { get; set; }
     public string Password { get; set; }
     public TimeSpan Timeout { get; set; }
+    public TimeSpan HandlerLifeTime { get; set; }
+    public int RetryCount { get; set; }
 }
