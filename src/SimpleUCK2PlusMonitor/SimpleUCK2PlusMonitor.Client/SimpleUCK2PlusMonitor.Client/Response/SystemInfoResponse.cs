@@ -82,7 +82,7 @@ public class Disk
     public string SerialNumber { get; set; }
 
     [JsonPropertyName("size")]
-    public long SizeInBytes { get; set; }
+    public long Size { get; set; }
     
     [JsonPropertyName("rpm")]
     public int Rpm { get; set; }
@@ -211,13 +211,13 @@ public class Hardware
 public class Memory
 {
     [JsonPropertyName("free")]
-    public int FreeInKb { get; set; }
+    public long Free { get; set; }
     
     [JsonPropertyName("total")]
-    public int TotalInKb { get; set; }
+    public long Total { get; set; }
     
     [JsonPropertyName("available")]
-    public int AvailableInKb { get; set; }
+    public long Available { get; set; }
 }
 
 public class Ports
@@ -253,13 +253,13 @@ public class Storage
     public string MountPoint { get; set; }
     
     [JsonPropertyName("size")]
-    public ulong? SizeInKb { get; set; }
+    public long? Size { get; set; }
     
     [JsonPropertyName("used")]
-    public ulong? UsedInKb { get; set; }
+    public long? Used { get; set; }
     
     [JsonPropertyName("avail")]
-    public ulong? AvailableInKb { get; set; }
+    public long? Available { get; set; }
     
     [JsonPropertyName("device")]
     public StorageDevice Device { get; set; }
@@ -301,7 +301,7 @@ public class Cpu
     public string Model { get; set; }
     
     [JsonPropertyName("currentload")]
-    public double Currentload { get; set; }
+    public double CurrentLoad { get; set; }
     
     [JsonPropertyName("temperature")]
     public double Temperature { get; set; }

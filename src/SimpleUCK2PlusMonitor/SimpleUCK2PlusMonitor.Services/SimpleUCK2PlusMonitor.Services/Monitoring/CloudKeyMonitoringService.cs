@@ -76,12 +76,38 @@ public class CloudKeyMonitoringService : IMonitoringService
     private void UpdateMetrics(SystemInfoResponse data)
     {
         var cpuTemperature = data.Cpu.Temperature;
-        var hddTemperature = data.UStorage.Disks.FirstOrDefault().Temperature;
+        var cpuLoad = data.Cpu.CurrentLoad;
+        var hdd = data.UStorage.Disks.FirstOrDefault();
+        var disk = data.Storage.FirstOrDefault(s => s.Type == "hdd");
+        var hddTemperature = hdd?.Temperature;
+        var hddSize = hdd?.Size;
+        var hddPwrOnHrs = hdd?.PowerOnHours;
+        var badSectors = hdd?.BadSector;
+        var smartErrors = hdd?.SmartErrorCount;
+        var readErrors = hdd?.ReadError;
+        var diskSize = disk?.Size;
+        var diskAvailable = disk?.Available;
+        var diskUsed = disk?.Used;
+        var totalMemory = data.Memory.Total;
+        var freeMemory = data.Memory.Free;
+        var availableMemory = data.Memory.Available;
         
         _logger.LogDebug("Current CpuTemperature: {CurrCpu}; Updated CpuTemperature: {UpdCpu}", _metrics.CpuTemperature, cpuTemperature);
-        _logger.LogDebug("Current HddTemperature: {CurrHdd}; Updated HddTemperature: {UpdHdd}", _metrics.CpuTemperature, hddTemperature);
+        _logger.LogDebug("Current HddTemperature: {CurrHddTemp}; Updated HddTemperature: {UpdHddTemp}", _metrics.CpuTemperature, hddTemperature);
         
         _metrics.CpuTemperature = cpuTemperature;
-        _metrics.HddTemperature = hddTemperature;
+        _metrics.CpuLoad = cpuLoad;
+        _metrics.HddSize = hddSize ?? 0;
+        _metrics.HddTemperature = hddTemperature ?? 0;
+        _metrics.HddPowerOnHours = hddPwrOnHrs ?? 0;
+        _metrics.HddBadSectors = badSectors ?? 0;
+        _metrics.HddSmartErrors = smartErrors ?? 0;
+        _metrics.HddReadErrors = readErrors ?? 0;
+        _metrics.DiskSize = diskSize ?? 0;
+        _metrics.DiskAvailable = diskAvailable ?? 0;
+        _metrics.DiskUsed = diskUsed ?? 0;
+        _metrics.TotalMemory = totalMemory;
+        _metrics.FreeMemory = freeMemory;
+        _metrics.AvailableMemory = availableMemory;
     }
 }
