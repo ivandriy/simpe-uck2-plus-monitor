@@ -1,11 +1,11 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+RUN apt-get update 
+RUN apt-get --yes install curl
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-RUN apt-get update 
-RUN apt-get --yes install curl
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["SimpleUCK2PlusMonitor/SimpleUCK2PlusMonitor.WebApi/SimpleUCK2PlusMonitor.WebApi/SimpleUCK2PlusMonitor.WebApi.csproj", "SimpleUCK2PlusMonitor/SimpleUCK2PlusMonitor.WebApi/SimpleUCK2PlusMonitor.WebApi/"]
