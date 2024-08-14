@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Polly.Extensions.Http;
+using SimpleUCK2PlusMonitor.Client.HealthChecks;
 using SimpleUCK2PlusMonitor.Client.Options;
 
 namespace SimpleUCK2PlusMonitor.Client.Extensions;
@@ -28,6 +29,17 @@ public static class ServiceCollectionExtensions
             };
         });
         services.Configure<CloudKeyClientOptions>(configuration.GetSection(CloudKeyClientOptions.ConfigSectionName));
+        return services;
+    }
+
+    public static IServiceCollection AddCloudKeyHealthCheck(this IServiceCollection services)
+    {
+        services
+            .AddSingleton<CloudKeyHealthCheck>();
+        services
+            .AddHealthChecks()
+            .AddCheck<CloudKeyHealthCheck>(nameof(CloudKeyHealthCheck), tags: new[] { "cloudkey" });
+
         return services;
     }
     

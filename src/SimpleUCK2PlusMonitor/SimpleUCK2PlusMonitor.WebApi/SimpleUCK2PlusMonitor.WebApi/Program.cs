@@ -27,7 +27,6 @@ try
     
     builder.Host.UseSerilog(logger);
     builder.Logging.AddSerilog(logger);
-
     builder.Services.AddOpenTelemetry()
         .WithMetrics(providerBuilder =>
         {
@@ -37,22 +36,25 @@ try
             providerBuilder.AddConsoleExporter();
 #endif
         });
+    builder.Services.AddHealthChecks();
 
     builder.Services.AddCloudKeyClient(builder.Configuration);
+    builder.Services.AddCloudKeyHealthCheck();
     builder.Services.AddSingleton<IMonitoringService, CloudKeyMonitoringService>();
     builder.Services.AddSingleton<CloudKeyMetrics>();
     builder.Services.Configure<WorkerOptions>(builder.Configuration.GetSection(WorkerOptions.ConfigSectionName));
     builder.Services.AddHostedService<Worker>();
 
     var app = builder.Build();
-
     app.UseSerilogRequestLogging();
-
+    
+    app.MapHealthChecks("/health");
     app.MapPrometheusScrapingEndpoint();
-
+    
     app.MapGet("/api/data", async (IMonitoringService monitoringService) => await monitoringService.GetData());
-
+    
     app.Run();
+    
     Log.Information("Stopped cleanly");
     return 0;
 }
