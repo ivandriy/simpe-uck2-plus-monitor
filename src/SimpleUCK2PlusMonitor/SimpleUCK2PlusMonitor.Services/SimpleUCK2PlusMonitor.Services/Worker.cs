@@ -47,11 +47,18 @@ public class Worker : BackgroundService
 
     private async Task RunMonitoring()
     {
-        _logger.LogInformation("Update monitoring data");
+        _logger.LogInformation("Try to update monitoring data");
         using var scope = _serviceScopeFactory.CreateScope();
         var monitoringService =
             scope.ServiceProvider.GetRequiredService<IMonitoringService>();
-
-        await monitoringService.GetData();
+        try
+        {
+            await monitoringService.GetData();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Unable to update monitoring data due to exception: {ExMessage}", ex.Message);
+        }
+        
     }
 }
